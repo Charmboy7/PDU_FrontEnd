@@ -21,7 +21,7 @@ const Wizard = () => {
     <div className="wizard-container">
       <div className="d-flex justify-content-between align-items-end pb-3 mb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
         <h4 className="mb-0" style={{ color: 'var(--text-primary)', fontWeight: '600' }}>
-          {step === 1 ? 'Contact Information' : step === 2 ? 'Voltage and Power' : 'Summary and Quote'}
+          {step === 1 ? 'General Quote Information' : step === 2 ? 'Voltage and Power' : 'Summary and Quote'}
         </h4>
         <div style={{ paddingBottom: '4px' }}>
           <StepIndicator currentStep={step} totalSteps={3} />

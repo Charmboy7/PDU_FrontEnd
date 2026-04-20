@@ -21,6 +21,15 @@
   /* brighter hover */
   --action-secondary-border: #475569;
 
+  /* Theme Aliases */
+  --color-accent: var(--action-primary);
+  --color-muted: var(--text-muted);
+  --color-bg-input: var(--bg-input);
+  --color-bg-card: var(--bg-card);
+  --color-bg-header: var(--bg-header);
+  --color-border: var(--border-color);
+  --color-text-primary: var(--text-primary);
+
   /* Feedback */
   --error: #f87171;
   /* softened red */

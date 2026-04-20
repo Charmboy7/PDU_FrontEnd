@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { nextStep, updateData } from '../redux/configSlice';
 import FormInput from '../components/FormInput';
 import FormSelect from '../components/FormSelect';
-import FormRadioGroup from '../components/FormRadioGroup';
+import FormToggleGroup from '../components/FormToggleGroup';
 import FormButton from '../components/FormButton';
 
 const ContactInfo = () => {
@@ -126,16 +126,17 @@ const ContactInfo = () => {
       </div>
 
       <div className="row mt-2">
-        <div className="col-md-8">
-          <FormRadioGroup
+        <div className="col-md-6">
+          <FormToggleGroup
             label="Product Region"
-            name="productRegion"
-            value={formData.productRegion}
-            onChange={handleChange}
             options={regionOptions}
-            error={errors.productRegion}
+            value={formData.productRegion}
+            onChange={(e) => {
+              setFormData(prev => ({ ...prev, productRegion: e.target.value }));
+            }}
             required
           />
+          {errors.productRegion && <div className="invalid-feedback d-block" style={{ marginTop: '-1rem', marginBottom: '1rem' }}>{errors.productRegion}</div>}
         </div>
         <div className="col-md-4">
           <FormInput
