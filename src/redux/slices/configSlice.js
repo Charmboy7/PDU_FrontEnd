@@ -1,0 +1,122 @@
+import { createSlice } from '@reduxjs/toolkit';
+
+const STORAGE_KEY = 'pdu_config_state';
+
+// Static steps configuration
+const DEFAULT_STEPS = [
+  { id: 1, key: "GeneralQuoteInfo", label: "General Quote Information" },
+  { id: 2, key: "TransformerConfig", label: "Transformer Configuration" },
+  { id: 3, key: "Summary", label: "Summary and Quote" }
+];
+
+const DEFAULT_FORM_DATA = {
+  GeneralQuoteInfo: {
+    name: "",
+    email: "",
+    country: "",
+    postalCode: "",
+    productRegion: "",
+    quantity: ""
+  },
+  TransformerConfig: {
+    phase: "",
+    voltage: "",
+    current: "",
+    inputPlug: ""
+  }
+};
+
+// Persistence helper: Load from localStorage
+const loadPersistedState = () => {
+  try {
+    const serializedState = localStorage.getItem(STORAGE_KEY);
+    if (serializedState === null) {
+      return {
+        currentStep: 1,
+        ...DEFAULT_FORM_DATA
+      };
+    }
+    return JSON.parse(serializedState);
+  } catch (err) {
+    console.error("Could not load state from localStorage:", err);
+    return {
+      currentStep: 1,
+      ...DEFAULT_FORM_DATA
+    };
+  }
+};
+
+// Persistence helper: Save to localStorage
+const saveState = (state) => {
+  try {
+    // Only persist currentStep and form data sections
+    const { steps, ...persistableState } = state; 
+    const serializedState = JSON.stringify(persistableState);
+    localStorage.setItem(STORAGE_KEY, serializedState);
+  } catch (err) {
+    console.error("Could not save state to localStorage:", err);
+  }
+};
+
+const initialState = {
+  ...loadPersistedState(),
+  steps: DEFAULT_STEPS
+};
+
+export const configSlice = createSlice({
+  name: 'config',
+  initialState,
+  reducers: {
+    setCurrentStep: (state, action) => {
+      state.currentStep = action.payload;
+      saveState(state);
+    },
+    nextStep: (state) => {
+      if (state.currentStep < state.steps.length) {
+        state.currentStep += 1;
+        saveState(state);
+      }
+    },
+    prevStep: (state) => {
+      if (state.currentStep > 1) {
+        state.currentStep -= 1;
+        saveState(state);
+      }
+    },
+    updateField: (state, action) => {
+      const { section, field, value } = action.payload;
+      if (state[section]) {
+        state[section][field] = value;
+        saveState(state);
+      }
+    },
+    setSectionData: (state, action) => {
+      const { section, data } = action.payload;
+      if (state[section]) {
+        state[section] = { ...state[section], ...data };
+        saveState(state);
+      }
+    },
+    resetConfig: (state) => {
+      // Clear localStorage
+      localStorage.removeItem(STORAGE_KEY);
+      // Reset to defaults
+      return {
+        ...DEFAULT_FORM_DATA,
+        currentStep: 1,
+        steps: DEFAULT_STEPS
+      };
+    }
+  },
+});
+
+export const { 
+  setCurrentStep, 
+  nextStep, 
+  prevStep, 
+  updateField, 
+  setSectionData, 
+  resetConfig 
+} = configSlice.actions;
+
+export default configSlice.reducer;

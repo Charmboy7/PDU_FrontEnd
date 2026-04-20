@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { fetchMetadata } from './redux/slices/metadataSlice';
 import Wizard from './components/Wizard';
 import Header from './components/Header';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchMetadata());
+  }, [dispatch]);
+
   return (
     <Router>
       <Header />
