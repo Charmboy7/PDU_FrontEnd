@@ -10,7 +10,7 @@ const DEFAULT_STEPS = [
   { id: 4, key: "InputBreakerConfig", label: "Input Breaker Configuration" },
   { id: 5, key: "SubfeedBreakerConfig", label: "Subfeed Breaker Configuration" },
   { id: 6, key: "MonitoringFeatures", label: "Monitoring Features" },
-  { id: 7, key: "AccessoriesSelection", label: "Accessories Selection" },
+  { id: 7, key: "AccessoriesSelection", label: "Accessories Configuration" },
   { id: 8, key: "ServicesWarranty", label: "Services & Warranty" },
   { id: 9, key: "AutomationSubmit", label: "Submit for Automation Processing" },
   { id: 10, key: "OutputGeneration", label: "Output Generation" }
@@ -50,7 +50,17 @@ const DEFAULT_FORM_DATA = {
   },
   SubfeedBreakerConfig: {},
   MonitoringFeatures: {},
-  AccessoriesSelection: {},
+  AccessoriesSelection: {
+    sensors: {
+      temp_humidity_sensor: 0,
+      temp_sensor: 0
+    },
+    external_display: 0,
+    cable_accessories: {
+      sleeve_c14: 0,
+      sleeve_c20: 0
+    }
+  },
   ServicesWarranty: {},
   AutomationSubmit: {},
   OutputGeneration: {}
