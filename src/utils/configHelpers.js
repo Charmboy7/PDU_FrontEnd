@@ -13,7 +13,7 @@ export const buildCumulativePayload = (configState) => {
     EnclosureConfig: configState.EnclosureConfig || {},
     InputBreakerConfig: configState.InputBreakerConfig || {},
     SubfeedBreakerConfig: configState.SubfeedBreakerConfig || {},
-    MonitoringFeatures: configState.MonitoringFeatures || {},
+    MonitoringConfig: configState.MonitoringConfig || {},
     AccessoriesSelection: configState.AccessoriesSelection || {},
     ServicesWarranty: configState.ServicesWarranty || {},
     AutomationSubmit: configState.AutomationSubmit || {}

@@ -9,7 +9,7 @@ const DEFAULT_STEPS = [
   { id: 3, key: "EnclosureConfig", label: "Enclosure Configuration" },
   { id: 4, key: "InputBreakerConfig", label: "Input Breaker Configuration" },
   { id: 5, key: "SubfeedBreakerConfig", label: "Subfeed Breaker Configuration" },
-  { id: 6, key: "MonitoringFeatures", label: "Monitoring Features" },
+  { id: 6, key: "MonitoringConfig", label: "Monitoring Configuration" },
   { id: 7, key: "AccessoriesSelection", label: "Accessories Configuration" },
   { id: 8, key: "ServicesWarranty", label: "Services & Warranty" },
   { id: 9, key: "AutomationSubmit", label: "Submit for Automation Processing" },
@@ -49,7 +49,9 @@ const DEFAULT_FORM_DATA = {
     breakerType: ""
   },
   SubfeedBreakerConfig: {},
-  MonitoringFeatures: {},
+  MonitoringConfig: {
+    selectedSeries: ""
+  },
   AccessoriesSelection: {
     sensors: {
       temp_humidity_sensor: 0,
