@@ -3,63 +3,105 @@ import { useDispatch, useSelector } from 'react-redux';
 import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice';
 import FormButton from '../components/FormButton';
 import SubfeedCard from '../components/SubfeedCard';
-import { subfeedOptions } from '../constants/subfeedOptions';
 
 const SubfeedBreakerConfig = () => {
   const dispatch = useDispatch();
   const stepData = useSelector((state) => state.config.SubfeedBreakerConfig);
+  const { options, rules } = useSelector((state) => state.metadata);
 
-  // Initialize outlets array if it doesn't exist
+  // Initialize outlets map if it doesn't exist
   useEffect(() => {
     if (!stepData.outlets) {
       dispatch(setSectionData({
         section: 'SubfeedBreakerConfig',
-        data: { outlets: [] }
+        data: { outlets: {} }
       }));
     }
   }, [stepData.outlets, dispatch]);
 
-  const outlets = stepData.outlets || [];
+  const outlets = stepData.outlets || {};
+
+  // --- Derive data from metadata ---
+  const outletTypes = options.outlet_type || [];
+  const allFeatures = options.outlet_feature || [];
+
+  // Find the single rule that maps outlet_type → allowed outlet_features
+  const featureRule = rules.find(
+    r => r.screen_name === 'subfeed_breaker_configuration' && r.field_name === 'outlet_feature'
+  );
+
+  // Find the rule that maps outlet_type → max quantity
+  const quantityRule = rules.find(
+    r => r.screen_name === 'subfeed_breaker_configuration' && r.field_name === 'quantity'
+  );
+
+  /**
+   * Resolve allowed features for a given outlet type.
+   * Falls back to showing all features if no rule is found.
+   */
+  const getAllowedFeatures = (outletTypeValue) => {
+    if (!featureRule) return allFeatures;
+    const condition = featureRule.rules?.conditions?.find(c => c.if === outletTypeValue);
+    if (!condition) return allFeatures;
+    return allFeatures.filter(f => condition.values.includes(f.value));
+  };
+
+  /**
+   * Resolve max quantity for a given outlet type.
+   * Falls back to 24 if no rule is found.
+   */
+  const getMaxQuantity = (outletTypeValue) => {
+    if (!quantityRule) return 24;
+    const condition = quantityRule.rules?.conditions?.find(c => c.if === outletTypeValue);
+    return condition?.max ?? 24;
+  };
 
   const handleCardChange = (updatedOutlet) => {
-    // If quantity is 0 and all features are false, we could technically drop it from array, 
-    // but updating it is fine.
-    let newOutlets = [...outlets];
-    const existingIndex = newOutlets.findIndex(o => o.type === updatedOutlet.type);
-
-    if (existingIndex > -1) {
-      newOutlets[existingIndex] = updatedOutlet;
-    } else {
-      newOutlets.push(updatedOutlet);
-    }
-
     dispatch(setSectionData({
       section: 'SubfeedBreakerConfig',
-      data: { outlets: newOutlets }
+      data: {
+        outlets: {
+          ...outlets,
+          [updatedOutlet.type]: updatedOutlet
+        }
+      }
     }));
   };
 
   return (
     <div className="step-container">
-      <div className="section-label mb-2" style={{ color: 'var(--text-label)', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px' }}>
-        OUTLET TYPE & FEATURES
+      <div
+        className="section-label mb-2"
+        style={{ color: 'var(--text-label)', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px' }}
+      >
+        OUTLET TYPE &amp; FEATURES
       </div>
-      
+
       <div className="subfeed-grid">
-        {subfeedOptions.map(option => {
-          // Find the value payload for this specific card
-          const val = outlets.find(o => o.type === option.type) || null;
+        {outletTypes.map(outletType => {
+          const allowedFeatures = getAllowedFeatures(outletType.value);
+          const maxQty = getMaxQuantity(outletType.value);
+          const currentValue = outlets[outletType.value] || null;
 
           return (
-            <SubfeedCard 
-              key={option.type}
-              option={option}
-              value={val}
+            <SubfeedCard
+              key={outletType.value}
+              outletType={outletType}
+              outletFeatures={allowedFeatures}
+              maxQuantity={maxQty}
+              value={currentValue}
               onChange={handleCardChange}
             />
-          )
+          );
         })}
       </div>
+
+      {/* Show a fallback if metadata isn't loaded yet */}
+      {outletTypes.length === 0 && (
+        <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: '2rem' }}>
+          Loading outlet options...
+        </p>
+      )}
 
       {/* NAVIGATION */}
       <div className="wizard-actions mt-5">

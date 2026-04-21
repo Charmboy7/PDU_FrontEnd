@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice';
 import FormButton from '../components/FormButton';
@@ -15,9 +15,12 @@ import '../styles/components/toggle-group.css';
  */
 const EnclosureConfig = () => {
   const dispatch = useDispatch();
-  const stepData = useSelector((state) => state.config.EnclosureConfig);
-  const quoteId = useSelector((state) => state.config.quoteId);
+  const configState = useSelector((state) => state.config);
+  const { quoteId, quoteNumber, GeneralQuoteInfo, TransformerConfig, EnclosureConfig: stepData } = configState;
   const { options, loading } = useSelector((state) => state.metadata);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const initialStepData = useRef(stepData);
 
   // Local state for form data, initialized from Redux
   const [formData, setFormData] = useState({
@@ -33,7 +36,6 @@ const EnclosureConfig = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (name, value) => {
     const updatedData = { ...formData, [name]: value };
@@ -68,26 +70,27 @@ const EnclosureConfig = () => {
 
   const handleNext = async () => {
     if (validate()) {
+      // Only call API if data has changed
+      const hasChanges = JSON.stringify(stepData) !== JSON.stringify(initialStepData.current);
+      
+      if (!hasChanges) {
+        dispatch(nextStep());
+        return;
+      }
+
       setIsSubmitting(true);
       try {
-        const payload = {
-          enclosure_config: {
-            form_factor: formData.formFactor,
-            color: formData.color,
-            custom_color: formData.color === 'Custom' ? formData.customColor : null,
-            outlet_type: formData.outletType,
-            number_of_outlets: parseInt(formData.numberOfOutlets, 10),
-            outlet_arrangement: formData.outletArrangement,
-            input_position: formData.inputPosition,
-            mounting_type: formData.mountingType,
-            outlet_spacing: formData.outletSpacing
+        await api.put(`/configurations/${quoteId}`, {
+          step: 3,
+          config_data: {
+            quote_number: quoteNumber,
+            GeneralQuoteInfo: GeneralQuoteInfo,
+            TransformerConfig: TransformerConfig,
+            "Enclosure Configuration": stepData
           }
-        };
-
-        if (quoteId) {
-          await api.put(`/quotes/${quoteId}`, payload);
-        }
-
+        });
+        
+        initialStepData.current = stepData;
         dispatch(nextStep());
       } catch (error) {
         console.error("Failed to save enclosure configuration:", error);
