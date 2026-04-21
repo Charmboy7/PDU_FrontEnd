@@ -42,7 +42,7 @@ const AccessoriesSelection = () => {
   const handleUpdate = (category, field, value) => {
     // Ensure value is a non-negative integer
     const numericValue = value === '' ? 0 : parseInt(value, 10);
-    
+
     if (isNaN(numericValue) || numericValue < 0) return;
 
     let updatedSectionData;
@@ -81,8 +81,8 @@ const AccessoriesSelection = () => {
             quote_number: quoteNumber,
             GeneralQuoteInfo,
             TransformerConfig,
-            "Enclosure Configuration": EnclosureConfig,
-            "Accessories Configuration": stepData
+            EnclosureConfig,
+            AccessoriesSelection: stepData
           }
         });
         dispatch(nextStep());

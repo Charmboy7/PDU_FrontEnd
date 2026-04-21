@@ -40,10 +40,10 @@ const EnclosureConfig = () => {
   const handleChange = (name, value) => {
     const updatedData = { ...formData, [name]: value };
     setFormData(updatedData);
-    
+
     // Step 5.4: Ensure state updates on every user interaction
     dispatch(setSectionData({ section: 'EnclosureConfig', data: { [name]: value } }));
-    
+
     // Clear error when field is updated
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
@@ -72,7 +72,7 @@ const EnclosureConfig = () => {
     if (validate()) {
       // Only call API if data has changed
       const hasChanges = JSON.stringify(stepData) !== JSON.stringify(initialStepData.current);
-      
+
       if (!hasChanges) {
         dispatch(nextStep());
         return;
@@ -86,10 +86,10 @@ const EnclosureConfig = () => {
             quote_number: quoteNumber,
             GeneralQuoteInfo: GeneralQuoteInfo,
             TransformerConfig: TransformerConfig,
-            "Enclosure Configuration": stepData
+            EnclosureConfig: stepData
           }
         });
-        
+
         initialStepData.current = stepData;
         dispatch(nextStep());
       } catch (error) {
@@ -108,16 +108,16 @@ const EnclosureConfig = () => {
       <div className="row g-4">
         {/* Form Factor Section */}
         <div className="col-md-4">
-          <FormFactorSection 
-            value={formData.formFactor} 
-            onChange={(val) => handleChange('formFactor', val)} 
+          <FormFactorSection
+            value={formData.formFactor}
+            onChange={(val) => handleChange('formFactor', val)}
           />
         </div>
 
         {/* Colored Casing Section */}
         <div className="col-md-4">
-          <ColoredCasingSection 
-            value={formData.color} 
+          <ColoredCasingSection
+            value={formData.color}
             customValue={formData.customColor}
             onChange={(val) => handleChange('color', val)}
             onCustomChange={(val) => handleChange('customColor', val)}
@@ -127,7 +127,7 @@ const EnclosureConfig = () => {
 
         {/* Physical Layout Section */}
         <div className="col-md-4">
-          <PhysicalLayoutSection 
+          <PhysicalLayoutSection
             formData={formData}
             onChange={handleChange}
             options={options}
@@ -154,12 +154,12 @@ const EnclosureConfig = () => {
 
 // Reusable Toggle Row for consistency
 const ToggleRow = ({ label, value, onClick, isSelected }) => (
-  <div 
+  <div
     className={`form-toggle-group-row ${isSelected ? 'selected' : ''}`}
     onClick={onClick}
   >
     <span className="form-toggle-group-label">{label}</span>
-    <FormToggle value={isSelected} onChange={() => {}} />
+    <FormToggle value={isSelected} onChange={() => { }} />
   </div>
 );
 
@@ -167,17 +167,17 @@ const FormFactorSection = ({ value, onChange }) => (
   <div className="form-toggle-group-container">
     <div className="form-toggle-group-header">Form Factor</div>
     <div className="form-toggle-group-body">
-      <ToggleRow 
-        label="Vertical" 
-        value="Vertical" 
-        isSelected={value === 'Vertical'} 
-        onClick={() => onChange('Vertical')} 
+      <ToggleRow
+        label="Vertical"
+        value="Vertical"
+        isSelected={value === 'Vertical'}
+        onClick={() => onChange('Vertical')}
       />
-      <ToggleRow 
-        label="Horizontal" 
-        value="Horizontal" 
-        isSelected={value === 'Horizontal'} 
-        onClick={() => onChange('Horizontal')} 
+      <ToggleRow
+        label="Horizontal"
+        value="Horizontal"
+        isSelected={value === 'Horizontal'}
+        onClick={() => onChange('Horizontal')}
       />
     </div>
   </div>
@@ -188,7 +188,7 @@ const ColoredCasingSection = ({ value, customValue, onChange, onCustomChange, cu
     <div className="form-toggle-group-header">Colored Casing</div>
     <div className="form-toggle-group-body">
       {['Black', 'Red', 'Blue', 'Custom'].map(color => (
-        <ToggleRow 
+        <ToggleRow
           key={color}
           label={color}
           value={color}
