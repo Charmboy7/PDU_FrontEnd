@@ -29,8 +29,8 @@ const DEFAULT_FORM_DATA = {
   },
   TransformerConfig: {
     phase: "",
-    voltage: "",
-    current: "",
+    input_voltage: "",
+    input_current: "",
     inputPlug: ""
   },
   EnclosureConfig: {
