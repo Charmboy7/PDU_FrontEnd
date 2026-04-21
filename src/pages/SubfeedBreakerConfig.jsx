@@ -22,7 +22,7 @@ const SubfeedBreakerConfig = () => {
   const outlets = stepData.outlets || {};
 
   // --- Derive data from metadata ---
-  const outletTypes = options.outlet_type || [];
+  let outletTypes = options.outlet_type || [];
   const allFeatures = options.outlet_feature || [];
 
   // Find the single rule that maps outlet_type → allowed outlet_features
@@ -34,6 +34,15 @@ const SubfeedBreakerConfig = () => {
   const quantityRule = rules.find(
     r => r.screen_name === 'subfeed_breaker_configuration' && r.field_name === 'quantity'
   );
+
+  // Filter outletTypes to only show those that are explicitly configured for this screen
+  if (featureRule || quantityRule) {
+    const configuredTypes = new Set([
+      ...(featureRule?.rules?.conditions?.map(c => c.if) || []),
+      ...(quantityRule?.rules?.conditions?.map(c => c.if) || [])
+    ]);
+    outletTypes = outletTypes.filter(ot => configuredTypes.has(ot.value));
+  }
 
   /**
    * Resolve allowed features for a given outlet type.
