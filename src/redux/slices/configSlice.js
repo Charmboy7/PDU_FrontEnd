@@ -19,6 +19,7 @@ const DEFAULT_STEPS = [
 
 const DEFAULT_FORM_DATA = {
   quoteId: null,
+  quoteNumber: null,
   GeneralQuoteInfo: {
     name: "",
     email: "",
@@ -30,10 +31,19 @@ const DEFAULT_FORM_DATA = {
   TransformerConfig: {
     phase: "",
     input_voltage: "",
-    input_current: "",
-    inputPlug: ""
+    input_current: ""
   },
-  EnclosureConfig: {},
+  EnclosureConfig: {
+    formFactor: 'Vertical',
+    color: 'Black',
+    customColor: '',
+    outletType: '',
+    numberOfOutlets: '',
+    outletArrangement: '',
+    inputPosition: '',
+    mountingType: '',
+    outletSpacing: ''
+  },
   InputBreakerConfig: {},
   SubfeedBreakerConfig: {},
   MonitoringFeatures: {},
@@ -118,6 +128,10 @@ export const configSlice = createSlice({
       state.quoteId = action.payload;
       saveState(state);
     },
+    setQuoteNumber: (state, action) => {
+      state.quoteNumber = action.payload;
+      saveState(state);
+    },
     resetConfig: (state) => {
       // Clear localStorage
       localStorage.removeItem(STORAGE_KEY);
@@ -138,6 +152,7 @@ export const {
   updateField,
   setSectionData,
   setQuoteId,
+  setQuoteNumber,
   resetConfig
 } = configSlice.actions;
 
