@@ -32,8 +32,8 @@ const SummaryQuote = () => {
         <div className="card p-3" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
           <div className="row">
             <div className="col-6 mb-2"><strong>Phase:</strong> {TransformerConfig.phase}</div>
-            <div className="col-6 mb-2"><strong>Voltage:</strong> {TransformerConfig.voltage}</div>
-            <div className="col-6"><strong>Current:</strong> {TransformerConfig.current}</div>
+            <div className="col-6 mb-2"><strong>Voltage:</strong> {TransformerConfig.input_voltage}</div>
+            <div className="col-6"><strong>Current:</strong> {TransformerConfig.input_current}</div>
           </div>
         </div>
       </div>

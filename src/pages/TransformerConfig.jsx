@@ -7,34 +7,58 @@ import FormToggleGroup from '../components/FormToggleGroup';
 const TransformerConfig = () => {
   const dispatch = useDispatch();
   const stepData = useSelector((state) => state.config.TransformerConfig);
+  const { options, rules } = useSelector((state) => state.metadata);
+
+  const { phase = '', input_voltage = '', input_current = '', inputPlug = '' } = stepData;
+
+  // Filter options based on rules
+  const getFilteredOptions = (fieldName, dependentValue) => {
+    const fieldOptions = options[fieldName] || [];
+    const rule = rules.find(r => r.field_name === fieldName && r.screen_name === 'transformer_configuration');
+    
+    if (!rule || !dependentValue) return fieldOptions;
+
+    const condition = rule.rules.conditions.find(c => c.if === dependentValue);
+    if (!condition) return [];
+
+    return fieldOptions.filter(opt => condition.values.includes(opt.value));
+  };
+
+  const phaseOptions = options['phase'] || [];
+  const voltageOptions = getFilteredOptions('input_voltage', phase);
+  const currentOptions = getFilteredOptions('input_current', phase);
 
   // Initialize data if not present
   useEffect(() => {
-    if (!stepData.phase) {
+    if (!phase && phaseOptions.length > 0) {
+      const defaultPhase = phaseOptions[0].value;
+      const initialVoltage = getFilteredOptions('input_voltage', defaultPhase)[0]?.value || '';
+      const initialCurrent = getFilteredOptions('input_current', defaultPhase)[0]?.value || '';
+      
       dispatch(setSectionData({
         section: 'TransformerConfig',
         data: {
-          phase: '1PH',
-          voltage: '230V',
-          current: '',
+          phase: defaultPhase,
+          input_voltage: initialVoltage,
+          input_current: initialCurrent,
           inputPlug: ''
         }
       }));
     }
-  }, [stepData.phase, dispatch]);
-
-  const { phase = '1PH', voltage = '', current = '', inputPlug = '' } = stepData;
+  }, [phase, phaseOptions, dispatch]);
 
   const handleSelection = (name, value) => {
     const updates = { [name]: value };
 
-    // Conditional Logic for Voltage
+    // When phase changes, reset dependent fields to their first valid option
     if (name === 'phase') {
-      if (value === '1PH') updates.voltage = '230V';
-      if (value === '3PH') updates.voltage = '400V';
+      const validVoltages = getFilteredOptions('input_voltage', value);
+      const validCurrents = getFilteredOptions('input_current', value);
+      
+      updates.input_voltage = validVoltages[0]?.value || '';
+      updates.input_current = validCurrents[0]?.value || '';
     }
 
-    // Input Plug single selection logic across groups
     if (name === 'iecPlug' || name === 'unterminatedPlug') {
       updates.inputPlug = value;
     }
@@ -42,22 +66,7 @@ const TransformerConfig = () => {
     dispatch(setSectionData({ section: 'TransformerConfig', data: updates }));
   };
 
-  const isStepValid = phase && voltage && current; // and inputPlug if we had plugs enabled
-
-  // Options (could be moved to a constants file or fetched from API)
-  const phaseOptions = [
-    { label: '1PH', value: '1PH' },
-    { label: '3PH', value: '3PH' }
-  ];
-
-  const voltageOptions = phase === '1PH'
-    ? [{ label: '230V', value: '230V' }]
-    : [{ label: '400V', value: '400V' }];
-
-  const currentOptions = [
-    { label: '16A', value: '16A' },
-    { label: '32A', value: '32A' }
-  ];
+  const isStepValid = phase && input_voltage && input_current;
 
   return (
     <div className="step-container">
@@ -76,8 +85,8 @@ const TransformerConfig = () => {
           <FormToggleGroup
             label="Input Voltage"
             options={voltageOptions}
-            value={voltage}
-            onChange={(e) => handleSelection('voltage', e.target.value)}
+            value={input_voltage}
+            onChange={(e) => handleSelection('input_voltage', e.target.value)}
             required
           />
         </div>
@@ -85,8 +94,8 @@ const TransformerConfig = () => {
           <FormToggleGroup
             label="Input Current"
             options={currentOptions}
-            value={current}
-            onChange={(e) => handleSelection('current', e.target.value)}
+            value={input_current}
+            onChange={(e) => handleSelection('input_current', e.target.value)}
             required
           />
         </div>
