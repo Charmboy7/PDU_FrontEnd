@@ -33,7 +33,17 @@ const DEFAULT_FORM_DATA = {
     current: "",
     inputPlug: ""
   },
-  EnclosureConfig: {},
+  EnclosureConfig: {
+    formFactor: 'Vertical',
+    color: 'Black',
+    customColor: '',
+    outletType: '',
+    numberOfOutlets: '',
+    outletArrangement: '',
+    inputPosition: '',
+    mountingType: '',
+    outletSpacing: ''
+  },
   InputBreakerConfig: {},
   SubfeedBreakerConfig: {},
   MonitoringFeatures: {},
@@ -67,7 +77,7 @@ const loadPersistedState = () => {
 const saveState = (state) => {
   try {
     // Only persist currentStep and form data sections
-    const { steps, ...persistableState } = state; 
+    const { steps, ...persistableState } = state;
     const serializedState = JSON.stringify(persistableState);
     localStorage.setItem(STORAGE_KEY, serializedState);
   } catch (err) {
@@ -131,14 +141,14 @@ export const configSlice = createSlice({
   },
 });
 
-export const { 
-  setCurrentStep, 
-  nextStep, 
-  prevStep, 
-  updateField, 
+export const {
+  setCurrentStep,
+  nextStep,
+  prevStep,
+  updateField,
   setSectionData,
   setQuoteId,
-  resetConfig 
+  resetConfig
 } = configSlice.actions;
 
 export default configSlice.reducer;
