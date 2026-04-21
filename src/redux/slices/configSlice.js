@@ -44,7 +44,10 @@ const DEFAULT_FORM_DATA = {
     mountingType: '',
     outletSpacing: ''
   },
-  InputBreakerConfig: {},
+  InputBreakerConfig: {
+    breakerOrFuse: "",
+    breakerType: ""
+  },
   SubfeedBreakerConfig: {},
   MonitoringFeatures: {},
   AccessoriesSelection: {},
@@ -63,7 +66,12 @@ const loadPersistedState = () => {
         ...DEFAULT_FORM_DATA
       };
     }
-    return JSON.parse(serializedState);
+    const persistedState = JSON.parse(serializedState);
+    return {
+      ...DEFAULT_FORM_DATA,
+      ...persistedState,
+      currentStep: persistedState.currentStep || 1
+    };
   } catch (err) {
     console.error("Could not load state from localStorage:", err);
     return {
