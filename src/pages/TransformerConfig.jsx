@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice';
 import FormButton from '../components/FormButton';
 import FormToggleGroup from '../components/FormToggleGroup';
+import api from '../services/api';
 
 const TransformerConfig = () => {
   const dispatch = useDispatch();
   const stepData = useSelector((state) => state.config.TransformerConfig);
   const { options, rules } = useSelector((state) => state.metadata);
-
-  const { phase = '', input_voltage = '', input_current = '', inputPlug = '' } = stepData;
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const initialStepData = useRef(stepData);
+  const { phase = '', input_voltage = '', input_current = '' } = stepData;
 
   // Filter options based on rules
   const getFilteredOptions = (fieldName, dependentValue) => {
@@ -28,45 +31,58 @@ const TransformerConfig = () => {
   const voltageOptions = getFilteredOptions('input_voltage', phase);
   const currentOptions = getFilteredOptions('input_current', phase);
 
-  // Initialize data if not present
-  useEffect(() => {
-    if (!phase && phaseOptions.length > 0) {
-      const defaultPhase = phaseOptions[0].value;
-      const initialVoltage = getFilteredOptions('input_voltage', defaultPhase)[0]?.value || '';
-      const initialCurrent = getFilteredOptions('input_current', defaultPhase)[0]?.value || '';
-      
-      dispatch(setSectionData({
-        section: 'TransformerConfig',
-        data: {
-          phase: defaultPhase,
-          input_voltage: initialVoltage,
-          input_current: initialCurrent,
-          inputPlug: ''
-        }
-      }));
-    }
-  }, [phase, phaseOptions, dispatch]);
-
   const handleSelection = (name, value) => {
     const updates = { [name]: value };
 
-    // When phase changes, reset dependent fields to their first valid option
+    // When phase changes, clear dependent fields to force user selection
     if (name === 'phase') {
-      const validVoltages = getFilteredOptions('input_voltage', value);
-      const validCurrents = getFilteredOptions('input_current', value);
-      
-      updates.input_voltage = validVoltages[0]?.value || '';
-      updates.input_current = validCurrents[0]?.value || '';
+      updates.input_voltage = '';
+      updates.input_current = '';
     }
 
-    if (name === 'iecPlug' || name === 'unterminatedPlug') {
-      updates.inputPlug = value;
+    // When voltage changes, clear current to force user selection
+    if (name === 'input_voltage') {
+      updates.input_current = '';
     }
 
     dispatch(setSectionData({ section: 'TransformerConfig', data: updates }));
   };
 
   const isStepValid = phase && input_voltage && input_current;
+
+  const configState = useSelector((state) => state.config);
+  const { quoteId, quoteNumber, GeneralQuoteInfo } = configState;
+
+  const handleNext = async () => {
+    if (isStepValid) {
+      // Only call API if data has changed
+      const hasChanges = JSON.stringify(stepData) !== JSON.stringify(initialStepData.current);
+      
+      if (!hasChanges) {
+        dispatch(nextStep());
+        return;
+      }
+
+      setIsSubmitting(true);
+      try {
+        await api.put(`/configurations/${quoteId}`, {
+          step: 2,
+          config_data: {
+            quote_number: quoteNumber,
+            GeneralQuoteInfo: GeneralQuoteInfo,
+            TransformerConfig: stepData
+          }
+        });
+        initialStepData.current = stepData;
+        dispatch(nextStep());
+      } catch (error) {
+        console.error("Failed to save transformer configuration:", error);
+        alert("Failed to save configuration. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
 
   return (
     <div className="step-container">
@@ -107,10 +123,10 @@ const TransformerConfig = () => {
         </FormButton>
         <FormButton
           variant="primary"
-          onClick={() => dispatch(nextStep())}
-          disabled={!isStepValid}
+          onClick={handleNext}
+          disabled={!isStepValid || isSubmitting}
         >
-          Next
+          {isSubmitting ? 'Saving...' : 'Next'}
         </FormButton>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/components/button.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { nextStep, setSectionData, setQuoteId } from '../redux/slices/configSlice';
+import { nextStep, setSectionData, setQuoteId, setQuoteNumber } from '../redux/slices/configSlice';
 import FormInput from '../components/FormInput';
 import FormSelect from '../components/FormSelect';
 import FormToggleGroup from '../components/FormToggleGroup';
@@ -84,12 +84,14 @@ const GeneralQuoteInfo = () => {
           // Update existing quote only if data has changed
           const hasChanges = JSON.stringify(formData) !== JSON.stringify(stepData);
           if (hasChanges) {
-            await api.put(`/quotes/${quoteId}`, payload);
+            const response = await api.put(`/quotes/${quoteId}`, payload);
+            dispatch(setQuoteNumber(response.quote_number));
           }
         } else {
           // Create new quote
           const response = await api.post('/quotes', payload);
           dispatch(setQuoteId(response.quote_id));
+          dispatch(setQuoteNumber(response.quote_number));
         }
 
         dispatch(setSectionData({ section: 'GeneralQuoteInfo', data: formData }));
@@ -180,7 +182,7 @@ const GeneralQuoteInfo = () => {
             </div>
           )}
         </div>
-        <div className="col-md-4">
+        <div className="col-md-6">
           <FormInput
             label="Quantity"
             name="quantity"
