@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/components/button.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { nextStep, setSectionData } from '../redux/slices/configSlice';
+import { nextStep, setSectionData, setQuoteId } from '../redux/slices/configSlice';
 import FormInput from '../components/FormInput';
 import FormSelect from '../components/FormSelect';
 import FormToggleGroup from '../components/FormToggleGroup';
 import FormButton from '../components/FormButton';
+import api from '../services/api';
 
 const GeneralQuoteInfo = () => {
   const dispatch = useDispatch();
   const stepData = useSelector((state) => state.config.GeneralQuoteInfo);
+  const quoteId = useSelector((state) => state.config.quoteId);
   const { options, loading } = useSelector((state) => state.metadata);
 
   const [formData, setFormData] = useState({
@@ -24,6 +26,7 @@ const GeneralQuoteInfo = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [isValid, setIsValid] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validate = (data) => {
     let newErrors = {};
@@ -34,9 +37,18 @@ const GeneralQuoteInfo = () => {
       newErrors.email = 'E-Mail is invalid';
     }
     if (!data.country) newErrors.country = 'Country is required';
-    if (!data.postalCode.trim()) newErrors.postalCode = 'Postal Code is required';
+    
+    if (!data.postalCode.trim()) {
+      newErrors.postalCode = 'Postal Code is required';
+    } else if (!/^\d+$/.test(data.postalCode.trim())) {
+      newErrors.postalCode = 'Postal Code must contain only numbers';
+    }
+
     if (!data.productRegion) newErrors.productRegion = 'Product Region is required';
-    if (!data.quantity || Number(data.quantity) <= 0) newErrors.quantity = 'Valid quantity is required';
+    
+    if (!data.quantity || Number(data.quantity) <= 0) {
+      newErrors.quantity = 'Valid positive quantity is required';
+    }
 
     setErrors(newErrors);
     setIsValid(Object.keys(newErrors).length === 0);
@@ -55,10 +67,39 @@ const GeneralQuoteInfo = () => {
     setTouched(prev => ({ ...prev, [e.target.name]: true }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isValid) {
-      dispatch(setSectionData({ section: 'GeneralQuoteInfo', data: formData }));
-      dispatch(nextStep());
+      setIsSubmitting(true);
+      try {
+        const payload = {
+          customer_name: formData.name,
+          email: formData.email,
+          country: formData.country,
+          postal_code: formData.postalCode,
+          product_region: formData.productRegion,
+          quantity: Number(formData.quantity)
+        };
+
+        if (quoteId) {
+          // Update existing quote only if data has changed
+          const hasChanges = JSON.stringify(formData) !== JSON.stringify(stepData);
+          if (hasChanges) {
+            await api.put(`/quotes/${quoteId}`, payload);
+          }
+        } else {
+          // Create new quote
+          const response = await api.post('/quotes', payload);
+          dispatch(setQuoteId(response.quote_id));
+        }
+
+        dispatch(setSectionData({ section: 'GeneralQuoteInfo', data: formData }));
+        dispatch(nextStep());
+      } catch (error) {
+        console.error("Failed to save quote:", error);
+        alert("Failed to save quote information. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -147,7 +188,13 @@ const GeneralQuoteInfo = () => {
             value={formData.quantity}
             onChange={handleChange}
             onBlur={handleBlur}
+            onKeyDown={(e) => {
+              if (['-', '+', 'e', 'E', '.'].includes(e.key)) {
+                e.preventDefault();
+              }
+            }}
             placeholder="1"
+            min="1"
             error={touched.quantity ? errors.quantity : null}
             required
           />
@@ -158,8 +205,8 @@ const GeneralQuoteInfo = () => {
         <FormButton variant="secondary" disabled={true}>
           Previous
         </FormButton>
-        <FormButton variant="primary" onClick={handleNext} disabled={!isValid}>
-          Next
+        <FormButton variant="primary" onClick={handleNext} disabled={!isValid || isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Next'}
         </FormButton>
       </div>
     </div>

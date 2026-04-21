@@ -5,7 +5,14 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { nextStep, prevStep } from '../redux/slices/configSlice';
 import GeneralQuoteInfo from '../pages/GeneralQuoteInfo';
 import TransformerConfig from '../pages/TransformerConfig';
-import SummaryQuote from '../pages/SummaryQuote';
+import EnclosureConfig from '../pages/EnclosureConfig';
+import InputBreakerConfig from '../pages/InputBreakerConfig';
+import SubfeedBreakerConfig from '../pages/SubfeedBreakerConfig';
+import MonitoringFeatures from '../pages/MonitoringFeatures';
+import AccessoriesSelection from '../pages/AccessoriesSelection';
+import ServicesWarranty from '../pages/ServicesWarranty';
+import AutomationSubmit from '../pages/AutomationSubmit';
+import OutputGeneration from '../pages/OutputGeneration';
 import StepIndicator from './StepIndicator';
 
 const Wizard = () => {
@@ -34,7 +41,14 @@ const Wizard = () => {
           <Route path="/" element={<Navigate to="/step1" replace />} />
           <Route path="/step1" element={<GeneralQuoteInfo />} />
           <Route path="/step2" element={<TransformerConfig />} />
-          <Route path="/step3" element={<SummaryQuote />} />
+          <Route path="/step3" element={<EnclosureConfig />} />
+          <Route path="/step4" element={<InputBreakerConfig />} />
+          <Route path="/step5" element={<SubfeedBreakerConfig />} />
+          <Route path="/step6" element={<MonitoringFeatures />} />
+          <Route path="/step7" element={<AccessoriesSelection />} />
+          <Route path="/step8" element={<ServicesWarranty />} />
+          <Route path="/step9" element={<AutomationSubmit />} />
+          <Route path="/step10" element={<OutputGeneration />} />
         </Routes>
       </div>
     </div>

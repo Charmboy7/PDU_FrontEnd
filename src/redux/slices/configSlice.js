@@ -6,10 +6,19 @@ const STORAGE_KEY = 'pdu_config_state';
 const DEFAULT_STEPS = [
   { id: 1, key: "GeneralQuoteInfo", label: "General Quote Information" },
   { id: 2, key: "TransformerConfig", label: "Transformer Configuration" },
-  { id: 3, key: "Summary", label: "Summary and Quote" }
+  { id: 3, key: "EnclosureConfig", label: "Enclosure Configuration" },
+  { id: 4, key: "InputBreakerConfig", label: "Input Breaker Configuration" },
+  { id: 5, key: "SubfeedBreakerConfig", label: "Subfeed Breaker Configuration" },
+  { id: 6, key: "MonitoringFeatures", label: "Monitoring Features" },
+  { id: 7, key: "AccessoriesSelection", label: "Accessories Selection" },
+  { id: 8, key: "ServicesWarranty", label: "Services & Warranty" },
+  { id: 9, key: "AutomationSubmit", label: "Submit for Automation Processing" },
+  { id: 10, key: "OutputGeneration", label: "Output Generation" }
 ];
 
+
 const DEFAULT_FORM_DATA = {
+  quoteId: null,
   GeneralQuoteInfo: {
     name: "",
     email: "",
@@ -23,7 +32,15 @@ const DEFAULT_FORM_DATA = {
     voltage: "",
     current: "",
     inputPlug: ""
-  }
+  },
+  EnclosureConfig: {},
+  InputBreakerConfig: {},
+  SubfeedBreakerConfig: {},
+  MonitoringFeatures: {},
+  AccessoriesSelection: {},
+  ServicesWarranty: {},
+  AutomationSubmit: {},
+  OutputGeneration: {}
 };
 
 // Persistence helper: Load from localStorage
@@ -97,6 +114,10 @@ export const configSlice = createSlice({
         saveState(state);
       }
     },
+    setQuoteId: (state, action) => {
+      state.quoteId = action.payload;
+      saveState(state);
+    },
     resetConfig: (state) => {
       // Clear localStorage
       localStorage.removeItem(STORAGE_KEY);
@@ -115,7 +136,8 @@ export const {
   nextStep, 
   prevStep, 
   updateField, 
-  setSectionData, 
+  setSectionData,
+  setQuoteId,
   resetConfig 
 } = configSlice.actions;
 
