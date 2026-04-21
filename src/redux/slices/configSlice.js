@@ -140,6 +140,21 @@ export const configSlice = createSlice({
       state.quoteNumber = action.payload;
       saveState(state);
     },
+    initializeSubfeed: (state, action) => {
+      const outletTypes = action.payload; // expect array of {value, label}
+      if (!state.SubfeedBreakerConfig.outlets || Object.keys(state.SubfeedBreakerConfig.outlets).length === 0) {
+        const outlets = {};
+        outletTypes.forEach(ot => {
+          outlets[ot.value] = {
+            type: ot.value,
+            quantity: 0,
+            features: {} // Default empty features = All OFF
+          };
+        });
+        state.SubfeedBreakerConfig.outlets = outlets;
+        saveState(state);
+      }
+    },
     resetConfig: (state) => {
       // Clear localStorage
       localStorage.removeItem(STORAGE_KEY);
@@ -161,6 +176,7 @@ export const {
   setSectionData,
   setQuoteId,
   setQuoteNumber,
+  initializeSubfeed,
   resetConfig
 } = configSlice.actions;
 

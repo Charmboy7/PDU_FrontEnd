@@ -5,8 +5,8 @@ import FormButton from '../components/FormButton';
 import FormToggle from '../components/FormToggle';
 import FormInput from '../components/FormInput';
 import FormSelect from '../components/FormSelect';
+import { buildCumulativePayload } from '../utils/configHelpers';
 import api from '../services/api';
-import '../styles/components/toggle-group.css';
 
 /**
  * Enclosure Configuration Page
@@ -16,7 +16,7 @@ import '../styles/components/toggle-group.css';
 const EnclosureConfig = () => {
   const dispatch = useDispatch();
   const configState = useSelector((state) => state.config);
-  const { quoteId, quoteNumber, GeneralQuoteInfo, TransformerConfig, EnclosureConfig: stepData } = configState;
+  const { quoteId, quoteNumber, EnclosureConfig: stepData } = configState;
   const { options, loading } = useSelector((state) => state.metadata);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,7 +70,7 @@ const EnclosureConfig = () => {
 
   const handleNext = async () => {
     if (validate()) {
-      // Only call API if data has changed
+      // Only call API if data has changed (limit check to current step as requested)
       const hasChanges = JSON.stringify(stepData) !== JSON.stringify(initialStepData.current);
       
       if (!hasChanges) {
@@ -82,12 +82,7 @@ const EnclosureConfig = () => {
       try {
         await api.put(`/configurations/${quoteId}`, {
           step: 3,
-          config_data: {
-            quote_number: quoteNumber,
-            GeneralQuoteInfo: GeneralQuoteInfo,
-            TransformerConfig: TransformerConfig,
-            "Enclosure Configuration": stepData
-          }
+          config_data: buildCumulativePayload(configState)
         });
         
         initialStepData.current = stepData;

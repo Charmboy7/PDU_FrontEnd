@@ -4,10 +4,12 @@ import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice'
 import FormButton from '../components/FormButton';
 import FormToggleGroup from '../components/FormToggleGroup';
 import api from '../services/api';
+import { buildCumulativePayload } from '../utils/configHelpers';
 
 const TransformerConfig = () => {
   const dispatch = useDispatch();
-  const stepData = useSelector((state) => state.config.TransformerConfig);
+  const configState = useSelector((state) => state.config);
+  const { quoteId, quoteNumber, GeneralQuoteInfo, TransformerConfig: stepData } = configState;
   const { options, rules } = useSelector((state) => state.metadata);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,12 +52,9 @@ const TransformerConfig = () => {
 
   const isStepValid = phase && input_voltage && input_current;
 
-  const configState = useSelector((state) => state.config);
-  const { quoteId, quoteNumber, GeneralQuoteInfo } = configState;
-
   const handleNext = async () => {
     if (isStepValid) {
-      // Only call API if data has changed
+      // Only call API if data has changed (limit check to current step as requested)
       const hasChanges = JSON.stringify(stepData) !== JSON.stringify(initialStepData.current);
       
       if (!hasChanges) {
@@ -67,11 +66,7 @@ const TransformerConfig = () => {
       try {
         await api.put(`/configurations/${quoteId}`, {
           step: 2,
-          config_data: {
-            quote_number: quoteNumber,
-            GeneralQuoteInfo: GeneralQuoteInfo,
-            TransformerConfig: stepData
-          }
+          config_data: buildCumulativePayload(configState)
         });
         initialStepData.current = stepData;
         dispatch(nextStep());

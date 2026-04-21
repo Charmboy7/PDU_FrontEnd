@@ -1,52 +1,63 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice';
+import { nextStep, prevStep, setSectionData, initializeSubfeed } from '../redux/slices/configSlice';
 import FormButton from '../components/FormButton';
 import SubfeedCard from '../components/SubfeedCard';
+import { isEqual } from 'lodash';
+import api from '../services/api';
+import { buildCumulativePayload } from '../utils/configHelpers';
 
 const SubfeedBreakerConfig = () => {
   const dispatch = useDispatch();
-  const stepData = useSelector((state) => state.config.SubfeedBreakerConfig);
+  const configState = useSelector((state) => state.config);
+  const { quoteId, SubfeedBreakerConfig: stepData } = configState;
   const { options, rules } = useSelector((state) => state.metadata);
+  
+  const [validationError, setValidationError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const initialStepData = useRef(null);
 
-  // Initialize outlets map if it doesn't exist
-  useEffect(() => {
-    if (!stepData.outlets) {
-      dispatch(setSectionData({
-        section: 'SubfeedBreakerConfig',
-        data: { outlets: {} }
-      }));
-    }
-  }, [stepData.outlets, dispatch]);
-
-  const outlets = stepData.outlets || {};
-
-  // --- Derive data from metadata ---
-  let outletTypes = options.outlet_type || [];
+  // Derive data from metadata
+  const rawOutletTypes = options.outlet_type || [];
   const allFeatures = options.outlet_feature || [];
+  const allQuantities = options.outlet_quantity || [];
 
-  // Find the single rule that maps outlet_type → allowed outlet_features
+  // Filter outletTypes to only show those that are explicitly configured for this screen
   const featureRule = rules.find(
     r => r.screen_name === 'subfeed_breaker_configuration' && r.field_name === 'outlet_feature'
   );
-
-  // Find the rule that maps outlet_type → max quantity
   const quantityRule = rules.find(
     r => r.screen_name === 'subfeed_breaker_configuration' && r.field_name === 'quantity'
   );
 
-  // Filter outletTypes to only show those that are explicitly configured for this screen
+  let outletTypes = rawOutletTypes;
   if (featureRule || quantityRule) {
     const configuredTypes = new Set([
       ...(featureRule?.rules?.conditions?.map(c => c.if) || []),
       ...(quantityRule?.rules?.conditions?.map(c => c.if) || [])
     ]);
-    outletTypes = outletTypes.filter(ot => configuredTypes.has(ot.value));
+    outletTypes = rawOutletTypes.filter(ot => configuredTypes.has(ot.value));
   }
+
+  // Initialize outlets map if it doesn't exist
+  useEffect(() => {
+    if (outletTypes.length > 0 && (!stepData.outlets || Object.keys(stepData.outlets).length === 0)) {
+      dispatch(initializeSubfeed(outletTypes));
+    }
+  }, [outletTypes, stepData.outlets, dispatch]);
+
+  // Sync initialStepData once data is ready
+  useEffect(() => {
+    if (stepData.outlets && Object.keys(stepData.outlets).length > 0 && initialStepData.current === null) {
+      initialStepData.current = stepData;
+    }
+  }, [stepData]);
+
+  const outlets = stepData.outlets || {};
+  const isValid = Object.values(outlets).some(o => parseInt(o.quantity, 10) > 0);
 
   /**
    * Resolve allowed features for a given outlet type.
-   * Falls back to showing all features if no rule is found.
    */
   const getAllowedFeatures = (outletTypeValue) => {
     if (!featureRule) return allFeatures;
@@ -56,16 +67,19 @@ const SubfeedBreakerConfig = () => {
   };
 
   /**
-   * Resolve max quantity for a given outlet type.
-   * Falls back to 24 if no rule is found.
+   * Resolve quantity options for a given outlet type from the metadata options table.
    */
-  const getMaxQuantity = (outletTypeValue) => {
-    if (!quantityRule) return 24;
-    const condition = quantityRule.rules?.conditions?.find(c => c.if === outletTypeValue);
-    return condition?.max ?? 24;
+  const getQuantityOptions = (outletTypeValue) => {
+    return allQuantities
+      .filter(q => q.metadata?.outlet_type === outletTypeValue)
+      .map(q => ({ label: q.label, value: q.value }));
   };
 
   const handleCardChange = (updatedOutlet) => {
+    if (parseInt(updatedOutlet.quantity, 10) > 0) {
+      setValidationError(null);
+    }
+
     dispatch(setSectionData({
       section: 'SubfeedBreakerConfig',
       data: {
@@ -77,8 +91,51 @@ const SubfeedBreakerConfig = () => {
     }));
   };
 
+  const handleNext = async () => {
+    if (!isValid) {
+      setValidationError("Please select at least one outlet type.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // Only call API if data has changed (limit check to current step as requested)
+    const hasChanges = initialStepData.current && !isEqual(stepData, initialStepData.current);
+    
+    if (!hasChanges) {
+      dispatch(nextStep());
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await api.put(`/configurations/${quoteId}`, {
+        step: 5,
+        config_data: buildCumulativePayload(configState)
+      });
+      initialStepData.current = stepData;
+      dispatch(nextStep());
+    } catch (error) {
+      console.error("Failed to save subfeed configuration:", error);
+      setValidationError(error.response?.data?.message || "Failed to save configuration. Please try again.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="step-container">
+      {validationError && (
+        <div className="subfeed-error-alert">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M10 6V10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M10 14H10.01" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {validationError}
+        </div>
+      )}
+
       <div
         className="section-label mb-2"
         style={{ color: 'var(--text-label)', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px' }}
@@ -89,7 +146,7 @@ const SubfeedBreakerConfig = () => {
       <div className="subfeed-grid">
         {outletTypes.map(outletType => {
           const allowedFeatures = getAllowedFeatures(outletType.value);
-          const maxQty = getMaxQuantity(outletType.value);
+          const quantityOptions = getQuantityOptions(outletType.value);
           const currentValue = outlets[outletType.value] || null;
 
           return (
@@ -97,7 +154,7 @@ const SubfeedBreakerConfig = () => {
               key={outletType.value}
               outletType={outletType}
               outletFeatures={allowedFeatures}
-              maxQuantity={maxQty}
+              quantityOptions={quantityOptions}
               value={currentValue}
               onChange={handleCardChange}
             />
@@ -105,7 +162,6 @@ const SubfeedBreakerConfig = () => {
         })}
       </div>
 
-      {/* Show a fallback if metadata isn't loaded yet */}
       {outletTypes.length === 0 && (
         <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: '2rem' }}>
           Loading outlet options...
@@ -114,14 +170,15 @@ const SubfeedBreakerConfig = () => {
 
       {/* NAVIGATION */}
       <div className="wizard-actions mt-5">
-        <FormButton variant="secondary" onClick={() => dispatch(prevStep())}>
+        <FormButton variant="secondary" onClick={() => dispatch(prevStep())} disabled={isSubmitting}>
           Previous
         </FormButton>
         <FormButton
           variant="primary"
-          onClick={() => dispatch(nextStep())}
+          onClick={handleNext}
+          disabled={isSubmitting || !isValid}
         >
-          Next
+          {isSubmitting ? 'Saving...' : 'Next'}
         </FormButton>
       </div>
     </div>

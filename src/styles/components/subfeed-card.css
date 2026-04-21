@@ -101,3 +101,34 @@
 /* Note: For native select elements, max-height/overflow-y styling is 
    limited by browser behavior. This class is prepared for future custom 
    dropdown implementation or specific browser support. */
+
+/* Error Alert Styling */
+.subfeed-error-alert {
+  background-color: rgba(220, 53, 69, 0.15); /* Subtle Bootstrap danger red */
+  border: 1px solid rgba(220, 53, 69, 0.4);
+  color: #ff6b6b;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.subfeed-error-alert svg {
+  flex-shrink: 0;
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

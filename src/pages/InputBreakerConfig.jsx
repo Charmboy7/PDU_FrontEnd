@@ -4,12 +4,12 @@ import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice'
 import FormButton from '../components/FormButton';
 import FormToggleGroup from '../components/FormToggleGroup';
 import api from '../services/api';
+import { buildCumulativePayload } from '../utils/configHelpers';
 
 const InputBreakerConfig = () => {
   const dispatch = useDispatch();
   const configState = useSelector((state) => state.config);
-  const { quoteId, quoteNumber } = configState;
-  const stepData = configState.InputBreakerConfig || {};
+  const { quoteId, quoteNumber, InputBreakerConfig: stepData = {} } = configState;
   const { options } = useSelector((state) => state.metadata);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,7 +52,7 @@ const InputBreakerConfig = () => {
 
   const handleNext = async () => {
     if (isStepValid) {
-      // Only call API if data has changed (Mirroring TransformerConfig pattern)
+      // Only call API if data has changed (limit check to current step as requested)
       const hasChanges = JSON.stringify(stepData) !== JSON.stringify(initialStepData.current);
 
       if (!hasChanges) {
@@ -64,10 +64,7 @@ const InputBreakerConfig = () => {
       try {
         await api.put(`/configurations/${quoteId}`, {
           step: 4,
-          config_data: {
-            quote_number: quoteNumber,
-            InputBreakerConfig: stepData
-          }
+          config_data: buildCumulativePayload(configState)
         });
         initialStepData.current = stepData;
         dispatch(nextStep());

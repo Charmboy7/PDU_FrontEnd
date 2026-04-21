@@ -4,13 +4,14 @@ import FormDropdown from './FormDropdown';
 import { subfeedImages } from '../constants/subfeedImages';
 import '../styles/components/subfeed-card.css';
 
-const SubfeedCard = ({ outletType, outletFeatures, maxQuantity, value, onChange }) => {
+const SubfeedCard = ({ outletType, outletFeatures, quantityOptions, value, onChange }) => {
   // value structure: { type, quantity, features: { STANDARD: true, LOCKABLE: false, ... } }
   const qty = value?.quantity || 0;
   const selectedFeatures = value?.features || {};
 
   const handleQuantityChange = (e) => {
-    const newQty = Math.min(parseInt(e.target.value, 10) || 0, maxQuantity);
+    // Selection comes from a discrete list now
+    const newQty = e.target.value;
     onChange({
       type: outletType.value,
       quantity: newQty,
@@ -22,17 +23,12 @@ const SubfeedCard = ({ outletType, outletFeatures, maxQuantity, value, onChange 
     onChange({
       type: outletType.value,
       quantity: qty,
-      features: {
-        ...selectedFeatures,
-        [featureValue]: checked
-      }
+      features: checked ? { [featureValue]: true } : {}
     });
   };
 
-  // Generate quantity options from 0..maxQuantity
-  const quantityOptions = Array.from({ length: maxQuantity + 1 }, (_, i) => i);
-
   const image = subfeedImages[outletType.value];
+  const isNema = outletType.value === 'NEMA_5_20R';
 
   return (
     <div className="subfeed-card">
@@ -56,7 +52,7 @@ const SubfeedCard = ({ outletType, outletFeatures, maxQuantity, value, onChange 
         }
       </div>
 
-      {outletFeatures.map(feature => (
+      {!isNema && outletFeatures.map(feature => (
         <div className="subfeed-feature-row" key={feature.value}>
           <span>{feature.label}</span>
           <FormToggle
