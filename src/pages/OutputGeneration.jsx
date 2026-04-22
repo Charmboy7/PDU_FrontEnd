@@ -11,8 +11,9 @@ const OutputGeneration = () => {
   const configState = useSelector((state) => state.config);
 
   const formatLabel = (key) => {
-    // Format keys: e.g. "input_voltage" -> "Input Voltage", "GeneralQuoteInfo" -> "General Quote Info"
-    const result = key.replace(/([A-Z])/g, " $1").replace(/_/g, ' ');
+    // Insert space between lowercase and uppercase letters (camelCase), then replace underscores with spaces.
+    // This prevents ALL_CAPS words from being spaced out by every letter.
+    const result = key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/_/g, ' ');
     return result.charAt(0).toUpperCase() + result.slice(1).trim();
   };
 
@@ -61,10 +62,10 @@ const OutputGeneration = () => {
               {validEntries.map(([key, value], index) => {
                 return (
                   <tr key={key} style={{ borderBottom: index === validEntries.length - 1 ? 'none' : '1px solid var(--border-color)', backgroundColor: 'transparent' }}>
-                    <td style={{ width: '50%', color: 'var(--text-label)', padding: '16px 24px', border: 'none', borderRight: '1px solid var(--border-color)', fontWeight: '500', backgroundColor: 'transparent', verticalAlign: 'top' }}>
+                    <td style={{ width: '50%', color: 'var(--text-label)', padding: '10px 18px', border: 'none', borderRight: '1px solid var(--border-color)', fontWeight: '500', backgroundColor: 'transparent', verticalAlign: 'top' }}>
                       {formatLabel(key)}
                     </td>
-                    <td style={{ width: '50%', color: 'var(--text-primary)', padding: '16px 24px', border: 'none', textAlign: 'left', backgroundColor: 'transparent', verticalAlign: 'top', wordBreak: 'break-word' }}>
+                    <td style={{ width: '50%', color: 'var(--text-primary)', padding: '10px 18px', border: 'none', textAlign: 'left', backgroundColor: 'transparent', verticalAlign: 'top', wordBreak: 'break-word' }}>
                       {formatValue(value)}
                     </td>
                   </tr>
