@@ -183,7 +183,30 @@ const OutputGeneration = () => {
             </div>
           </div>
         )}
-        {activeTab === 'Flow Diagram' && <div className="p-4 text-center" style={{ color: 'var(--text-muted)' }}>Flow diagram coming soon...</div>}
+        {activeTab === 'Flow Diagram' && (
+          <div className="p-4 text-center">
+            <div
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: '12px',
+                border: '1px solid var(--border-color)',
+                padding: '20px',
+                overflow: 'hidden'
+              }}
+            >
+              <img
+                src="/FlowDiagram.png"
+                alt="Flow Diagram"
+                style={{
+                  maxWidth: '100%',
+                  height: 'auto',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* NAVIGATION */}
