@@ -24,13 +24,13 @@
 .subfeed-card-header {
   background-color: var(--bg-header);
   color: var(--text-primary);
-  text-align: center;
+  text-align: left;
   padding: 1rem;
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 15px;
   border-bottom: 1px solid var(--border-color);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .subfeed-quantity-row {
@@ -50,7 +50,8 @@
 }
 
 .subfeed-image-container {
-  background-color: rgba(255, 255, 255, 0.02); /* Very subtle contrast for image */
+  background-color: rgba(255, 255, 255, 0.02);
+  /* Very subtle contrast for image */
   padding: 2rem;
   display: flex;
   justify-content: center;
@@ -63,7 +64,7 @@
   max-width: 100px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 }
 
 .subfeed-feature-row {
@@ -92,6 +93,7 @@
   flex-grow: 1;
   min-height: 48px;
 }
+
 /* Limit height of quantity dropdown and enable scroll */
 .subfeed-qty-select {
   max-height: 150px !important;

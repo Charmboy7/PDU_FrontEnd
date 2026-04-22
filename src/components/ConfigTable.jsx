@@ -17,7 +17,7 @@ const ConfigTable = ({ columns, rows, selectedValue, onSelect, title }) => {
       {title && (
         <div
           className="section-label mb-2"
-          style={{ color: 'var(--text-label)', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px' }}
+          style={{ color: 'var(--text-label)', fontSize: '13px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}
         >
           {title}
         </div>
@@ -52,10 +52,10 @@ const ConfigTable = ({ columns, rows, selectedValue, onSelect, title }) => {
               <td className="feature-label">Selection</td>
               {columns.map((col) => (
                 <td key={`select-${col.value}`} className="text-center">
-                   <div className="d-flex justify-content-center">
-                    <FormToggle 
-                      value={selectedValue === col.value} 
-                      onChange={() => onSelect(col.value)} 
+                  <div className="d-flex justify-content-center">
+                    <FormToggle
+                      value={selectedValue === col.value}
+                      onChange={() => onSelect(col.value)}
                     />
                   </div>
                 </td>
