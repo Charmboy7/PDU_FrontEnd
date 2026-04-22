@@ -34,8 +34,8 @@ const DEFAULT_FORM_DATA = {
     input_current: ""
   },
   EnclosureConfig: {
-    formFactor: 'Vertical',
-    color: 'Black',
+    formFactor: '',
+    color: '',
     individual: '',
     outletType: '',
     numberOfOutlets: '',
@@ -69,7 +69,7 @@ const DEFAULT_FORM_DATA = {
     factoryAcceptanceTest: false,
     siteAcceptanceTest: false,
     loadBankTesting: false,
-    warrantyPeriod: "1 Year"
+    warrantyPeriod: ""
   },
   SubmitConfig: {
     specialRequirements: "",

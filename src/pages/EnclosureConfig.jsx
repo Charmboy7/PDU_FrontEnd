@@ -24,8 +24,8 @@ const EnclosureConfig = () => {
 
   // Local state for form data, initialized from Redux
   const [formData, setFormData] = useState({
-    formFactor: stepData?.formFactor || 'Vertical',
-    color: stepData?.color || 'Black',
+    formFactor: stepData?.formFactor || '',
+    color: stepData?.color || '',
     individual: stepData?.individual || '',
     outletType: stepData?.outletType || '',
     numberOfOutlets: stepData?.numberOfOutlets || '',

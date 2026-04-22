@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice';
 import FormButton from '../components/FormButton';
@@ -21,18 +21,7 @@ const InputBreakerConfig = () => {
   const breakerOrFuseOptions = options['input_breaker_or_fuse'] || [];
   const breakerTypeOptions = options['input_breaker_type'] || [];
 
-  // Initialize data if not present
-  useEffect(() => {
-    if (!breakerOrFuse && breakerOrFuseOptions.length > 0) {
-      dispatch(setSectionData({
-        section: 'InputBreakerConfig',
-        data: {
-          breakerOrFuse: breakerOrFuseOptions[0].value,
-          breakerType: breakerOrFuseOptions[0].value === 'Circuit Breaker' ? (breakerTypeOptions[0]?.value || '') : ''
-        }
-      }));
-    }
-  }, [breakerOrFuse, breakerOrFuseOptions, breakerTypeOptions, dispatch]);
+  // No auto-initialization — buttons stay disabled until user makes a selection
 
   const handleSelection = (name, value) => {
     const updates = { [name]: value };
@@ -41,11 +30,6 @@ const InputBreakerConfig = () => {
     if (name === 'breakerOrFuse' && value !== 'Circuit Breaker') {
       updates.breakerType = '';
     }
-    // If switching TO Circuit Breaker and no type was previously selected, pick the first option
-    if (name === 'breakerOrFuse' && value === 'Circuit Breaker' && !breakerType) {
-      updates.breakerType = breakerTypeOptions[0]?.value || '';
-    }
-
     dispatch(setSectionData({ section: 'InputBreakerConfig', data: updates }));
   };
 
