@@ -18,17 +18,10 @@ const ServicesWarranty = () => {
   const initialStepData = useRef(stepData);
 
   const {
-    installationRequired = null,
-    factoryAcceptanceTest = null,
+    installationRequired,
     warrantyPeriod = ""
   } = stepData;
 
-  // Validation: Ensure all three primary panels have selections
-  const isStepValid = useMemo(() => {
-    return installationRequired &&
-      factoryAcceptanceTest &&
-      warrantyPeriod !== "";
-  }, [installationRequired, factoryAcceptanceTest, warrantyPeriod]);
 
   // Memoize options and rules
   const installationOptions = useMemo(() => options.service_installation || [], [options.service_installation]);
@@ -188,7 +181,7 @@ const ServicesWarranty = () => {
         <FormButton
           variant="primary"
           onClick={handleNext}
-          disabled={isSubmitting || !isStepValid}
+          disabled={isSubmitting || !installationRequired}
         >
           {isSubmitting ? 'Saving...' : 'Next'}
         </FormButton>

@@ -69,7 +69,7 @@ const DEFAULT_FORM_DATA = {
     factoryAcceptanceTest: false,
     siteAcceptanceTest: false,
     loadBankTesting: false,
-    warrantyPeriod: ""
+    warrantyPeriod: "1 Year"
   },
   SubmitConfig: {
     specialRequirements: "",
