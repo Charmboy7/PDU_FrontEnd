@@ -4,6 +4,7 @@ import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice'
 import FormButton from '../components/FormButton';
 import FormToggleGroup from '../components/FormToggleGroup';
 import api from '../services/api';
+import { buildCumulativePayload } from '../utils/configHelpers';
 
 const InputBreakerConfig = () => {
   const dispatch = useDispatch();
@@ -64,10 +65,7 @@ const InputBreakerConfig = () => {
       try {
         await api.put(`/configurations/${quoteId}`, {
           step: 4,
-          config_data: {
-            quote_number: quoteNumber,
-            InputBreakerConfig: stepData
-          }
+          config_data: buildCumulativePayload(configState)
         });
         initialStepData.current = stepData;
         dispatch(nextStep());

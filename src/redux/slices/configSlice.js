@@ -63,7 +63,14 @@ const DEFAULT_FORM_DATA = {
       sleeve_c20: 0
     }
   },
-  ServicesWarranty: {},
+  ServicesWarranty: {
+    installationRequired: false,
+    onSiteSupport: false,
+    factoryAcceptanceTest: false,
+    siteAcceptanceTest: false,
+    loadBankTesting: false,
+    warrantyPeriod: ""
+  },
   SubmitConfig: {
     specialRequirements: "",
     agreePrivacy: false,
