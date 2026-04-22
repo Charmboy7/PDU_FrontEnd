@@ -107,7 +107,7 @@ const ServicesWarranty = () => {
         {/* Panel 1 — Installation */}
         <div className="col-md-4">
           <div className="form-toggle-group-container">
-            <div className="form-toggle-group-header">Installation</div>
+            <div className="form-toggle-group-header">Installation <span className="required-mark">*</span></div>
             <div className="form-toggle-group-body">
               {installationOptions.map((opt) => {
                 const isSelected = stepData[opt.value];
