@@ -16,6 +16,6 @@ export const buildCumulativePayload = (configState) => {
     MonitoringConfig: configState.MonitoringConfig || {},
     AccessoriesSelection: configState.AccessoriesSelection || {},
     ServicesWarranty: configState.ServicesWarranty || {},
-    AutomationSubmit: configState.AutomationSubmit || {}
+    SubmitConfig: configState.SubmitConfig || {}
   };
 };

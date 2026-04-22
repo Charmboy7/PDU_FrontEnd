@@ -1,8 +1,9 @@
 .form-toggle-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 16px; /* Increased gap for better hierarchy */
+  padding: 10px 0;
   cursor: pointer;
   user-select: none;
 }
@@ -11,9 +12,12 @@
   color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
+  line-height: 1.6; /* Balanced line height for multi-line text */
 }
 
 .toggle-switch {
+  margin-top: 0; /* Reset for natural top alignment */
+  flex-shrink: 0;
   position: relative;
   width: 48px;
   height: 24px;
