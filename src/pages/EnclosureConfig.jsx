@@ -58,7 +58,11 @@ const EnclosureConfig = () => {
       newErrors.individual = 'Individual color (RAL) is required';
     }
     if (!formData.outletType) newErrors.outletType = 'Outlet Type is required';
-    if (!formData.numberOfOutlets) newErrors.numberOfOutlets = 'Number of Outlets is required';
+    if (!formData.numberOfOutlets) {
+      newErrors.numberOfOutlets = 'Number of Outlets is required';
+    } else if (parseInt(formData.numberOfOutlets) <= 0) {
+      newErrors.numberOfOutlets = 'Number of Outlets must be greater than 0';
+    }
     if (!formData.outletArrangement) newErrors.outletArrangement = 'Outlet Arrangement is required';
     if (!formData.inputPosition) newErrors.inputPosition = 'Input Position is required';
     if (!formData.mountingType) newErrors.mountingType = 'Mounting Type is required';
@@ -189,6 +193,7 @@ const PhysicalLayoutSection = ({ formData, onChange, options, errors }) => (
         label="Number of Outlets"
         name="numberOfOutlets"
         type="number"
+        min="1"
         placeholder="e.g., 24"
         value={formData.numberOfOutlets}
         onChange={(e) => onChange('numberOfOutlets', e.target.value)}
