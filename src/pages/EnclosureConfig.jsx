@@ -26,7 +26,7 @@ const EnclosureConfig = () => {
   const [formData, setFormData] = useState({
     formFactor: stepData?.formFactor || 'Vertical',
     color: stepData?.color || 'Black',
-    customColor: stepData?.customColor || '',
+    individual: stepData?.individual || '',
     outletType: stepData?.outletType || '',
     numberOfOutlets: stepData?.numberOfOutlets || '',
     outletArrangement: stepData?.outletArrangement || '',
@@ -54,8 +54,8 @@ const EnclosureConfig = () => {
     const newErrors = {};
     if (!formData.formFactor) newErrors.formFactor = 'Form Factor is required';
     if (!formData.color) newErrors.color = 'Color is required';
-    if (formData.color === 'Custom' && !formData.customColor) {
-      newErrors.customColor = 'Custom color is required';
+    if (formData.color === 'Individual' && !formData.individual) {
+      newErrors.individual = 'Individual color (RAL) is required';
     }
     if (!formData.outletType) newErrors.outletType = 'Outlet Type is required';
     if (!formData.numberOfOutlets) newErrors.numberOfOutlets = 'Number of Outlets is required';
@@ -124,15 +124,15 @@ const EnclosureConfig = () => {
             value={formData.color}
             onChange={(e) => handleChange('color', e.target.value)}
           />
-          {formData.color === 'Custom' && (
+          {formData.color === 'Individual' && (
             <div className="form-toggle-group-container mt-2">
               <div className="p-3">
                 <FormInput
-                  label="Custom Color"
+                  label="Individual Color (RAL)"
                   placeholder="233333 or RAL code"
-                  value={formData.customColor}
-                  onChange={(e) => handleChange('customColor', e.target.value)}
-                  error={errors.customColor}
+                  value={formData.individual}
+                  onChange={(e) => handleChange('individual', e.target.value)}
+                  error={errors.individual}
                   required
                 />
               </div>

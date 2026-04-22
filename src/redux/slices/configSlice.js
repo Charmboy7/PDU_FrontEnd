@@ -36,7 +36,7 @@ const DEFAULT_FORM_DATA = {
   EnclosureConfig: {
     formFactor: 'Vertical',
     color: 'Black',
-    customColor: '',
+    individual: '',
     outletType: '',
     numberOfOutlets: '',
     outletArrangement: '',
