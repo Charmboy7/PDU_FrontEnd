@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice';
 import FormButton from '../components/FormButton';
-import FormToggle from '../components/FormToggle';
+import FormToggleGroup from '../components/FormToggleGroup';
 import FormInput from '../components/FormInput';
 import FormSelect from '../components/FormSelect';
 import api from '../services/api';
@@ -108,21 +108,36 @@ const EnclosureConfig = () => {
       <div className="row g-4">
         {/* Form Factor Section */}
         <div className="col-md-4">
-          <FormFactorSection
+          <FormToggleGroup
+            label="Form Factor"
+            options={options.enclosure_form_factor || []}
             value={formData.formFactor}
-            onChange={(val) => handleChange('formFactor', val)}
+            onChange={(e) => handleChange('formFactor', e.target.value)}
           />
         </div>
 
         {/* Colored Casing Section */}
         <div className="col-md-4">
-          <ColoredCasingSection
+          <FormToggleGroup
+            label="Colored Casing"
+            options={options.enclosure_color || []}
             value={formData.color}
-            customValue={formData.customColor}
-            onChange={(val) => handleChange('color', val)}
-            onCustomChange={(val) => handleChange('customColor', val)}
-            customError={errors.customColor}
+            onChange={(e) => handleChange('color', e.target.value)}
           />
+          {formData.color === 'Custom' && (
+            <div className="form-toggle-group-container mt-2">
+              <div className="p-3">
+                <FormInput
+                  label="Custom Color"
+                  placeholder="233333 or RAL code"
+                  value={formData.customColor}
+                  onChange={(e) => handleChange('customColor', e.target.value)}
+                  error={errors.customColor}
+                  required
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Physical Layout Section */}
@@ -152,67 +167,13 @@ const EnclosureConfig = () => {
   );
 };
 
-// Reusable Toggle Row for consistency
-const ToggleRow = ({ label, value, onClick, isSelected }) => (
-  <div
-    className={`form-toggle-group-row ${isSelected ? 'selected' : ''}`}
-    onClick={onClick}
-  >
-    <span className="form-toggle-group-label">{label}</span>
-    <FormToggle value={isSelected} onChange={() => { }} />
-  </div>
-);
 
-const FormFactorSection = ({ value, onChange }) => (
-  <div className="form-toggle-group-container">
-    <div className="form-toggle-group-header">Form Factor</div>
-    <div className="form-toggle-group-body">
-      <ToggleRow
-        label="Vertical"
-        value="Vertical"
-        isSelected={value === 'Vertical'}
-        onClick={() => onChange('Vertical')}
-      />
-      <ToggleRow
-        label="Horizontal"
-        value="Horizontal"
-        isSelected={value === 'Horizontal'}
-        onClick={() => onChange('Horizontal')}
-      />
-    </div>
-  </div>
-);
-
-const ColoredCasingSection = ({ value, customValue, onChange, onCustomChange, customError }) => (
-  <div className="form-toggle-group-container">
-    <div className="form-toggle-group-header">Colored Casing</div>
-    <div className="form-toggle-group-body">
-      {['Black', 'Red', 'Blue', 'Custom'].map(color => (
-        <ToggleRow
-          key={color}
-          label={color}
-          value={color}
-          isSelected={value === color}
-          onClick={() => onChange(color)}
-        />
-      ))}
-      <div className="mt-3 px-3 pb-3">
-        <FormInput
-          label="Custom Color"
-          placeholder="233333 or RAL code"
-          value={customValue}
-          onChange={(e) => onCustomChange(e.target.value)}
-          disabled={value !== 'Custom'}
-          error={customError}
-        />
-      </div>
-    </div>
-  </div>
-);
 
 const PhysicalLayoutSection = ({ formData, onChange, options, errors }) => (
   <div className="form-toggle-group-container">
-    <div className="form-toggle-group-header">Physical Layout</div>
+    <div className="form-toggle-group-header">
+      Physical Layout <span className="required-mark">*</span>
+    </div>
     <div className="form-toggle-group-body p-3">
       <FormSelect
         label="Outlet Type"
