@@ -19,13 +19,26 @@ const SubfeedCard = ({ outletType, outletFeatures, maxQuantity, value, onChange 
   };
 
   const handleToggle = (featureValue, checked) => {
+    // Radio behavior for non-NEMA outlets (exclusive selection)
+    const isRadio = !outletType.value.includes('NEMA');
+    
+    let newFeatures = { ...selectedFeatures };
+    
+    if (isRadio && checked) {
+      // If turning one ON, turn all others OFF
+      Object.keys(selectedFeatures).forEach(key => {
+        newFeatures[key] = false;
+      });
+      newFeatures[featureValue] = true;
+    } else {
+      // Standard toggle or radio unselect
+      newFeatures[featureValue] = checked;
+    }
+
     onChange({
       type: outletType.value,
       quantity: qty,
-      features: {
-        ...selectedFeatures,
-        [featureValue]: checked
-      }
+      features: newFeatures
     });
   };
 
@@ -33,6 +46,7 @@ const SubfeedCard = ({ outletType, outletFeatures, maxQuantity, value, onChange 
   const quantityOptions = Array.from({ length: maxQuantity + 1 }, (_, i) => i);
 
   const image = subfeedImages[outletType.value];
+  const isNema = outletType.value.includes('NEMA');
 
   return (
     <div className="subfeed-card">
@@ -56,11 +70,11 @@ const SubfeedCard = ({ outletType, outletFeatures, maxQuantity, value, onChange 
         }
       </div>
 
-      {outletFeatures.map(feature => (
+      {!isNema && outletFeatures.map(feature => (
         <div className="subfeed-feature-row" key={feature.value}>
           <span>{feature.label}</span>
           <FormToggle
-            value={selectedFeatures[feature.value] || false}
+            value={!!selectedFeatures[feature.value]}
             onChange={(val) => handleToggle(feature.value, val)}
           />
         </div>

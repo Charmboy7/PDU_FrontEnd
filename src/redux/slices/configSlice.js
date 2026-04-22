@@ -12,7 +12,7 @@ const DEFAULT_STEPS = [
   { id: 6, key: "MonitoringConfig", label: "Monitoring Configuration" },
   { id: 7, key: "AccessoriesSelection", label: "Accessories Selection" },
   { id: 8, key: "ServicesWarranty", label: "Services & Warranty" },
-  { id: 9, key: "AutomationSubmit", label: "Submit for Automation Processing" },
+  { id: 9, key: "SubmitConfig", label: "Submit for Automation Processing" },
   { id: 10, key: "OutputGeneration", label: "Output Generation" }
 ];
 
@@ -64,7 +64,12 @@ const DEFAULT_FORM_DATA = {
     }
   },
   ServicesWarranty: {},
-  AutomationSubmit: {},
+  SubmitConfig: {
+    specialRequirements: "",
+    agreePrivacy: false,
+    marketingConsent: false,
+    emailCopy: false
+  },
   OutputGeneration: {}
 };
 
@@ -152,6 +157,21 @@ export const configSlice = createSlice({
       state.quoteNumber = action.payload;
       saveState(state);
     },
+    initializeSubfeed: (state, action) => {
+      const outletTypes = action.payload; // expect array of {value, label}
+      if (!state.SubfeedBreakerConfig.outlets || Object.keys(state.SubfeedBreakerConfig.outlets).length === 0) {
+        const outlets = {};
+        outletTypes.forEach(ot => {
+          outlets[ot.value] = {
+            type: ot.value,
+            quantity: 0,
+            features: {} // Default empty features = All OFF
+          };
+        });
+        state.SubfeedBreakerConfig.outlets = outlets;
+        saveState(state);
+      }
+    },
     resetConfig: (state) => {
       // Clear localStorage
       localStorage.removeItem(STORAGE_KEY);
@@ -173,6 +193,7 @@ export const {
   setSectionData,
   setQuoteId,
   setQuoteNumber,
+  initializeSubfeed,
   resetConfig
 } = configSlice.actions;
 

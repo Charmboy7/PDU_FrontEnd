@@ -32,10 +32,10 @@ const FormToggle = ({ label, value, onChange }) => {
       aria-pressed={value}
       aria-label={label}
     >
-      {label && <span className="form-toggle-label">{label}</span>}
       <div className={`toggle-switch ${value ? 'on' : ''}`}>
         <div className="toggle-knob"></div>
       </div>
+      {label && <span className="form-toggle-label">{label}</span>}
     </div>
   );
 };
