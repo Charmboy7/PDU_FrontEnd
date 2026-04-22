@@ -101,3 +101,17 @@
 /* Note: For native select elements, max-height/overflow-y styling is 
    limited by browser behavior. This class is prepared for future custom 
    dropdown implementation or specific browser support. */
+
+/* Error alert used in wizard steps */
+.subfeed-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #f87171;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}

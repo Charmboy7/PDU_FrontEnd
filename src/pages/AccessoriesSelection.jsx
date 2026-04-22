@@ -4,6 +4,7 @@ import { nextStep, prevStep, setSectionData } from '../redux/slices/configSlice'
 import FormButton from '../components/FormButton';
 import FormInput from '../components/FormInput';
 import api from '../services/api';
+import '../styles/components/subfeed-card.css';
 
 /**
  * Metadata for Accessories
@@ -37,7 +38,7 @@ const AccessoriesSelection = () => {
   const { quoteId, quoteNumber, GeneralQuoteInfo, TransformerConfig, EnclosureConfig, AccessoriesSelection: stepData } = configState;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [validationError, setValidationError] = useState(null);
 
   const handleUpdate = (category, field, value) => {
     // Ensure value is a non-negative integer
@@ -64,11 +65,21 @@ const AccessoriesSelection = () => {
   };
 
   const validate = () => {
-    const newErrors = {};
-    // All inputs are numeric and non-negative (handled by handleUpdate and input type)
-    // Here we can add extra validation if needed
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const { sensors, external_display, cable_accessories } = stepData;
+    const totalQty =
+      (sensors?.temp_humidity_sensor || 0) +
+      (sensors?.temp_sensor || 0) +
+      (external_display || 0) +
+      (cable_accessories?.sleeve_c14 || 0) +
+      (cable_accessories?.sleeve_c20 || 0);
+
+    if (totalQty === 0) {
+      setValidationError('Please add a quantity for at least one accessory before proceeding.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return false;
+    }
+    setValidationError(null);
+    return true;
   };
 
   const handleNext = async () => {
@@ -97,6 +108,16 @@ const AccessoriesSelection = () => {
 
   return (
     <div className="step-container">
+      {validationError && (
+        <div className="subfeed-error-alert mb-4">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M10 6V10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M10 14H10.01" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {validationError}
+        </div>
+      )}
       <div className="row g-4">
         {/* Sensors Section */}
         <div className="col-md-4">
@@ -116,15 +137,12 @@ const AccessoriesSelection = () => {
         {/* External Display Section */}
         <div className="col-md-4">
           <SectionWrapper title="External Display">
-            <div className="d-flex flex-column align-items-center h-100 justify-content-center">
-              <QuantityItem
-                label="External Display"
-                value={stepData.external_display}
-                onChange={(val) => handleUpdate('external_display', null, val)}
-                compact
-                showDivider={false}
-              />
-            </div>
+            <QuantityItem
+              label="External Display"
+              value={stepData.external_display}
+              onChange={(val) => handleUpdate('external_display', null, val)}
+              showDivider={false}
+            />
           </SectionWrapper>
         </div>
 

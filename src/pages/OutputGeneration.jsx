@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { prevStep } from '../redux/slices/configSlice';
+import { useNavigate } from 'react-router-dom';
+import { prevStep, resetConfig } from '../redux/slices/configSlice';
 import FormButton from '../components/FormButton';
 
 const OutputGeneration = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Inputs');
   const [showToast, setShowToast] = useState(true);
 
@@ -214,7 +216,10 @@ const OutputGeneration = () => {
         <FormButton variant="secondary" onClick={() => dispatch(prevStep())}>
           Previous
         </FormButton>
-        <FormButton variant="primary" onClick={() => { }}>
+        <FormButton variant="primary" onClick={() => {
+          dispatch(resetConfig());
+          navigate('/step1');
+        }}>
           Finish
         </FormButton>
       </div>
