@@ -15,12 +15,15 @@
   border-collapse: collapse;
   color: var(--text-primary);
   background-color: var(--bg-card);
+  --bs-table-border-color: var(--border-color);
+  --bs-table-bg: transparent;
 }
 
 .config-table th,
 .config-table td {
   padding: 16px;
   border-bottom: 1px solid var(--border-color);
+  border-color: var(--border-color);
 }
 
 .config-table thead th {

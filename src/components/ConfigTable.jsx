@@ -22,7 +22,7 @@ const ConfigTable = ({ columns, rows, selectedValue, onSelect, title }) => {
           {title}
         </div>
       )}
-      <div className="config-table-wrapper card">
+      <div className="config-table-wrapper">
         <table className="config-table">
           <thead>
             <tr>
